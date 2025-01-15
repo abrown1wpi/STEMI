@@ -4,7 +4,17 @@ import torch.nn.functional as F
 
 class MLModel:
     def __init__ (self, input_channels, num_conv_layers=2, out_channels=None,  kernel_sizes=None, num_fc_layers=2, fc_units=None, num_classes=50):
-        super(MLModel, self).__init__()
+        
+        device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
+        print(f"Using {device} device")
+        
+        #super(MLModel, self).__init__()
         self.conv_layers = nn.ModuleList()
         self.fc_layers = nn.ModuleList()
         
@@ -54,5 +64,5 @@ class MLModel:
             x = F.relu(fc(x))
         
         # Final output layer (ReLu as this is a regretion based project)
-        x = F.rule(self.output_layer(x))
+        x = F.relu(self.output_layer(x))
         return x
