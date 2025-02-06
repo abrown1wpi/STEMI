@@ -5,7 +5,7 @@ from brainflow.data_filter import DataFilter, FilterTypes
 
 def collect_data():
     params = BrainFlowInputParams()
-    params.serial_port = "COM4"
+    params.serial_port = "COM3"
     sampling_rate = 125
     duration = 10  # seconds
 
@@ -18,7 +18,7 @@ def collect_data():
         print("Starting data collection...")
 
         for i in range(8):
-            print(f"Collecting dataset {i + 1}...")
+            print(f"Collecting dataset {i}...")
             time.sleep(duration)
 
             # Retrieve raw data
@@ -34,7 +34,7 @@ def collect_data():
             emg_data_clipped = emg_data[:, samples_to_clip:-samples_to_clip]
 
             # Store processed data
-            np.save("emg_datasets" + str(i+1) + ".npy", emg_data_clipped)
+            np.save("emg_datasets" + str(i) + ".npy", emg_data_clipped)
 
         print("Data collection complete.")
 
@@ -46,3 +46,7 @@ def collect_data():
 
 # Collect EMG data
 collect_data()
+
+for i in range (7):
+    dataset=np.load(f"emg_datasets{i+1}.npy")
+    print(dataset.shape)
