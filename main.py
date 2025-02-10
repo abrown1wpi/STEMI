@@ -5,8 +5,8 @@ from brainflow.data_filter import DataFilter, FilterTypes
 
 def collect_data():
     params = BrainFlowInputParams()
-    params.serial_port = "COM3"
-    sampling_rate = 125
+    params.serial_port = "COM4"
+    sampling_rate = 250
     duration = 10  # seconds
 
     board = BoardShim(BoardIds.CYTON_BOARD.value, params)
@@ -17,7 +17,7 @@ def collect_data():
         board.start_stream()
         print("Starting data collection...")
 
-        for i in range(8):
+        for i in range(15):
             print(f"Collecting dataset {i}...")
             time.sleep(duration)
 
@@ -34,7 +34,7 @@ def collect_data():
             emg_data_clipped = emg_data[:, samples_to_clip:-samples_to_clip]
 
             # Store processed data
-            np.save("emg_datasets" + str(i) + ".npy", emg_data_clipped)
+            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Partcipant1-16f\\test1\\emg_datasets" + str(i) + ".npy", emg_data_clipped)
 
         print("Data collection complete.")
 
@@ -46,7 +46,3 @@ def collect_data():
 
 # Collect EMG data
 collect_data()
-
-for i in range (7):
-    dataset=np.load(f"emg_datasets{i+1}.npy")
-    print(dataset.shape)

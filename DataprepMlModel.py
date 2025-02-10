@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 class Dataprep(Dataset):
-    def __init__(self, num_classes=8, window_size=0.1, sampling_rate=125):
+    def __init__(self, num_classes=8, window_size=0.1, sampling_rate=250):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
@@ -21,9 +21,16 @@ class Dataprep(Dataset):
                 
                 self.tempData.append(dataseg)
                 # append data label
-                self.tempLabels.append([i]*5)
+                match i:
+                    case 0:
+                        self.tempLabels.append([i]*5)
+                    case 1:
+                        self.tempLabels.append([i]*5)
+                    case _:
+                        print("Failue. Add more hand signals")
         self.data = np.array(self.tempData, dtype=np.float32)
         self.labels = np.array(self.tempLabels, dtype=np.float32)
+        
     def __len__(self):
         return len(self.data)
 
