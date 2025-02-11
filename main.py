@@ -27,14 +27,14 @@ def collect_data():
             # Extract EMG channels
             emg_channels = BoardShim.get_emg_channels(BoardIds.CYTON_BOARD.value)
             emg_data = raw_data[emg_channels, :]
-            print(f"Shape of emg_data before clipping: {emg_data.shape}")
-
-            # Clip the first and last second of data
-            samples_to_clip = sampling_rate  # 1 second of data
-            emg_data_clipped = emg_data[:, samples_to_clip:-samples_to_clip]
-
+            print(f"Begin next motion. Shape of emg_data: {emg_data.shape}")
+             
+            #for channel in emg_channels:
+            #    DataFilter.perform_notch(emg_data[channel], sampling_rate, 50.0, 4, FilterTypes.BUTTERWORTH.value)
+            #    DataFilter.perform_highpass(emg_data[channel], sampling_rate, 20,4, FilterTypes.BUTTERWORTH.value)
             # Store processed data
-            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Partcipant1-16f\\test1\\emg_datasets" + str(i) + ".npy", emg_data_clipped)
+            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Partcipant1-16f\\test3\\emg_datasets" + str(i) + ".npy", emg_data)
+            time.sleep(7)
 
         print("Data collection complete.")
 

@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 class Dataprep(Dataset):
-    def __init__(self, num_classes=8, window_size=0.1, sampling_rate=250):
+    def __init__(self, num_classes=15, window_size=0.1, sampling_rate=250):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
@@ -26,8 +26,35 @@ class Dataprep(Dataset):
                         self.tempLabels.append([i]*5)
                     case 1:
                         self.tempLabels.append([i]*5)
+                    case 2:
+                        self.tempLabels.append([i]*5)
+                    case 3:
+                        self.tempLabels.append([i]*5)
+                    case 4:
+                        self.tempLabels.append([i]*5)
+                    case 5:
+                        self.tempLabels.append([i]*5)
+                    case 6:
+                        self.tempLabels.append([i]*5)
+                    case 7:
+                        self.tempLabels.append([i]*5)
+                    case 8:
+                        self.tempLabels.append([i]*5)
+                    case 9:
+                        self.tempLabels.append([i]*5)
+                    case 10:
+                        self.tempLabels.append([i]*5)
+                    case 11:
+                        self.tempLabels.append([i]*5)
+                    case 12:
+                        self.tempLabels.append([i]*5)
+                    case 13:
+                        self.tempLabels.append([i]*5)
+                    case 14:
+                        self.tempLabels.append([i]*5)
                     case _:
-                        print("Failue. Add more hand signals")
+                        print("Failue.")
+        
         self.data = np.array(self.tempData, dtype=np.float32)
         self.labels = np.array(self.tempLabels, dtype=np.float32)
         
@@ -37,9 +64,8 @@ class Dataprep(Dataset):
     def __getitem__(self, idx):
         return torch.tensor(self.data[idx]), torch.tensor(self.labels[idx])
 
-# Create dataset & dataloader
-dataset = Dataprep()
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -102,27 +128,32 @@ class MLModel(nn.Module):
             x = F.relu(fc(x))
         return self.output_layer(x)
 
-model=MLModel(input_channels=1)
+
 
 import torch.optim as optim
+def training_loop():
+    # Define loss function and optimizer
+    criterion = nn.MSELoss()  # Still using MSE loss
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Define loss function and optimizer
-criterion = nn.MSELoss()  # Still using MSE loss
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+    # Training loop
+    num_epochs = 10
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        for inputs, targets in dataloader:
+            inputs, targets = inputs.to(torch.float32), targets.to(torch.float32)  # Ensure correct dtype
 
-# Training loop
-num_epochs = 10
-for epoch in range(num_epochs):
-    running_loss = 0.0
-    for inputs, targets in dataloader:
-        inputs, targets = inputs.to(torch.float32), targets.to(torch.float32)  # Ensure correct dtype
+            optimizer.zero_grad()
+            outputs = model(inputs)  # Outputs shape: (batch_size, 5)
+            loss = criterion(outputs, targets)  # Compute MSE loss over all 5 values
+            loss.backward()
+            optimizer.step()
 
-        optimizer.zero_grad()
-        outputs = model(inputs)  # Outputs shape: (batch_size, 5)
-        loss = criterion(outputs, targets)  # Compute MSE loss over all 5 values
-        loss.backward()
-        optimizer.step()
+            running_loss += loss.item()
 
-        running_loss += loss.item()
-
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
+        
+dataset = Dataprep()
+dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+model=MLModel(input_channels=1)
+training_loop()
