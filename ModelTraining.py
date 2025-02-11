@@ -7,56 +7,57 @@ class Dataprep(Dataset):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
-        
-        for i in range(0, num_classes):
-            curData = np.load(f"emg_datasets{i}.npy")
-            
-            num_windows = curData.shape[1] // samples_per_window
-            
-            for j in range(num_windows):
-                firstVal = j * samples_per_window
-                endVal = firstVal + samples_per_window
+        for a in range(2,4):
+            for i in range(0, num_classes):
+                curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Partcipant1-16f\\test{a}\\emg_datasets{i}.npy")
                 
-                dataseg = curData[:, firstVal:endVal]
+                num_windows = curData.shape[1] // samples_per_window
                 
-                self.tempData.append(dataseg)
-                # append data label
-                match i:
-                    case 0:
-                        self.tempLabels.append([0,0,1,0,0])
-                    case 1:
-                        self.tempLabels.append([0,1,1,1,0])
-                    case 2:
-                        self.tempLabels.append([0,0,0,0,1])
-                    case 3:
-                        self.tempLabels.append([0,0,0,0,0.5])
-                    case 4:
-                        self.tempLabels.append([1,0,1,1,1])
-                    case 5:
-                        self.tempLabels.append([0,1,1,1,1])
-                    case 6:
-                        self.tempLabels.append([0,0,0,0,0])
-                    case 7:
-                        self.tempLabels.append([0,1,1,0,0])
-                    case 8:
-                        self.tempLabels.append([1,0.5,0.5,0.5,0.5])
-                    case 9:
-                        self.tempLabels.append([1,1,0,0,1])
-                    case 10:
-                        self.tempLabels.append([0,0,1,1,1])
-                    case 11:
-                        self.tempLabels.append([0.5,0,0,0,0])
-                    case 12:
-                        self.tempLabels.append([1,1,0,0,0])
-                    case 13:
-                        self.tempLabels.append([0,0,0.5,0.5,0.5])
-                    case 14:
-                        self.tempLabels.append([0,0,1,1,1])
-                    case _:
-                        print("Failue.")
-        
-        self.data = np.array(self.tempData, dtype=np.float32)
-        self.labels = np.array(self.tempLabels, dtype=np.float32)
+                for j in range(num_windows):
+                    firstVal = j * samples_per_window
+                    endVal = firstVal + samples_per_window
+                    
+                    dataseg = curData[:, firstVal:endVal]
+                    print(dataseg)
+                    self.tempData.append(dataseg)
+                    # append data label
+                    match i:
+                        case 0:
+                            self.tempLabels.append([0,0,1,0,0])
+                        case 1:
+                            self.tempLabels.append([0,1,1,1,0])
+                        case 2:
+                            self.tempLabels.append([0,0,0,0,1])
+                        case 3:
+                            self.tempLabels.append([0,0,0,0,0.5])
+                        case 4:
+                            self.tempLabels.append([1,0,1,1,1])
+                        case 5:
+                            self.tempLabels.append([0,1,1,1,1])
+                        case 6:
+                            self.tempLabels.append([0,0,0,0,0])
+                        case 7:
+                            self.tempLabels.append([0,1,1,0,0])
+                        case 8:
+                            self.tempLabels.append([1,0.5,0.5,0.5,0.5])
+                        case 9:
+                            self.tempLabels.append([1,1,0,0,1])
+                        case 10:
+                            self.tempLabels.append([0,0,1,1,1])
+                        case 11:
+                            self.tempLabels.append([0.5,0,0,0,0])
+                        case 12:
+                            self.tempLabels.append([1,1,0,0,0])
+                        case 13:
+                            self.tempLabels.append([0,0,0.5,0.5,0.5])
+                        case 14:
+                            self.tempLabels.append([0,0,1,1,1])
+                        case _:
+                            print("Failue.")
+            
+            self.data = np.array(self.tempData, dtype=np.float32)
+            self.labels = np.array(self.tempLabels, dtype=np.float32)
+        self.data = (self.data - np.min(self.data)) / (np.max(self.data) - np.min(self.data))
         
     def __len__(self):
         return len(self.data)
@@ -64,14 +65,11 @@ class Dataprep(Dataset):
     def __getitem__(self, idx):
         return torch.tensor(self.data[idx]), torch.tensor(self.labels[idx])
 
-
-
-
 import torch.nn as nn
 import torch.nn.functional as F
 
 class MLModel(nn.Module):
-    def __init__ (self, input_channels, num_conv_layers=2, out_channels=None,  kernel_sizes=None, num_fc_layers=2, fc_units=None):
+    def __init__ (self, input_channels, num_conv_layers=2, out_channels=None,  kernel_sizes=None, num_fc_layers=4, fc_units=None):
         super(MLModel, self).__init__()
         device = (
             "cuda"
@@ -95,7 +93,7 @@ class MLModel(nn.Module):
             self.conv_layers.append(nn.Conv2d(in_channels, out_channels[i], kernel_sizes[i]))
             in_channels = out_channels[i]
         
-        sample_input = torch.randn(1, input_channels, 8, 12)
+        sample_input = torch.randn(1, input_channels, 8, 25)
         self.flattened_size = self._calculate_flattened_size(sample_input)
         
         if fc_units is None:
@@ -119,14 +117,15 @@ class MLModel(nn.Module):
 
     def forward(self, x):
         x = x.unsqueeze(-1)  # Change to [batch_size, 8, 12, 1]
-        x = x.permute(0, 3, 1, 2)  # Rearrange to [batch_size, 1, 8, 12]
+        x = x.permute(0, 3, 1, 2)  # Rearrange to [batch_size, 1, 8, 25]
 
         for conv in self.conv_layers:
             x = F.relu(conv(x))
         x = x.reshape(x.size(0), -1)
         for fc in self.fc_layers:
             x = F.relu(fc(x))
-        return self.output_layer(x)
+        x = torch.sigmoid(self.output_layer(x))
+        return x
 
 
 
@@ -157,3 +156,13 @@ dataset = Dataprep()
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 model=MLModel(input_channels=1)
 training_loop()
+with torch.no_grad():
+    for inputs, targets in dataloader:
+        inputs = inputs.to(torch.float32)
+        targets = targets.to(torch.float32)
+        outputs = model(inputs)
+
+        print("Predictions:", outputs[:5].numpy())  # First 5 predictions
+        print("Actual Labels:", targets[:5].numpy())  # First 5 actual labels
+        break
+
