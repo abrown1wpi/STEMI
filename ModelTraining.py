@@ -18,7 +18,7 @@ class Dataprep(Dataset):
                     endVal = firstVal + samples_per_window
                     
                     dataseg = curData[:, firstVal:endVal]
-                    print(dataseg)
+                    #print(dataseg)
                     self.tempData.append(dataseg)
                     # append data label
                     match i:
@@ -136,7 +136,7 @@ def training_loop():
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Training loop
-    num_epochs = 10
+    num_epochs = 100
     for epoch in range(num_epochs):
         running_loss = 0.0
         for inputs, targets in dataloader:
