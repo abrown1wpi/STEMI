@@ -7,10 +7,11 @@ class Dataprep(Dataset):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
-        for a in range(2,4):
+        for a in range(1,2):
             for i in range(0, num_classes):
-                curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Partcipant1-16f\\test{a}\\emg_datasets{i}.npy")
+                curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant2-16\\test{a}\\emg_datasets_filter{i}.npy")
                 
+                # print(curData)
                 num_windows = curData.shape[1] // samples_per_window
                 
                 for j in range(num_windows):
@@ -132,19 +133,19 @@ class MLModel(nn.Module):
 import torch.optim as optim
 def training_loop():
     # Define loss function and optimizer
-    criterion = nn.MSELoss()  # Still using MSE loss
+    criterion = nn.MSELoss()  # Using MSE loss
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Training loop
-    num_epochs = 100
+    num_epochs = 10
     for epoch in range(num_epochs):
         running_loss = 0.0
         for inputs, targets in dataloader:
-            inputs, targets = inputs.to(torch.float32), targets.to(torch.float32)  # Ensure correct dtype
+            inputs, targets = inputs.to(torch.float32), targets.to(torch.float32) 
 
             optimizer.zero_grad()
-            outputs = model(inputs)  # Outputs shape: (batch_size, 5)
-            loss = criterion(outputs, targets)  # Compute MSE loss over all 5 values
+            outputs = model(inputs) 
+            loss = criterion(outputs, targets) 
             loss.backward()
             optimizer.step()
 
