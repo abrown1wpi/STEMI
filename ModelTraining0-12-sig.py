@@ -3,15 +3,15 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 class Dataprep(Dataset):
-    def __init__(self, num_classes=15, window_size=0.1, sampling_rate=250):
+    def __init__(self, numstart, numend, num_classes=15, window_size=0.1, sampling_rate=250):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
-        for a in range(1,2):
+        participant_value = "Participant3-17"
+        for a in range(numstart,numend):
             for i in range(0, num_classes):
-                curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant2-16\\test{a}\\emg_datasets_filter{i}.npy")
+                curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\{participant_value}\\test{a}\\emg_datasets{i}.npy")
                 
-                # print(curData)
                 num_windows = curData.shape[1] // samples_per_window
                 
                 for j in range(num_windows):
@@ -70,7 +70,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class MLModel(nn.Module):
-    def __init__ (self, input_channels, num_conv_layers=2, out_channels=None,  kernel_sizes=None, num_fc_layers=4, fc_units=None):
+    def __init__ (self, input_channels, num_conv_layers=0, out_channels=None,  kernel_sizes=None, num_fc_layers=12, fc_units=None):
         super(MLModel, self).__init__()
         device = (
             "cuda"
@@ -152,18 +152,33 @@ def training_loop():
             running_loss += loss.item()
 
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(dataloader)}")
-        
-dataset = Dataprep()
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+from torchmetrics import R2Score
+
+def test_model(model, dataloader):
+    model.eval()
+    r2_metric = R2Score()
+    
+    with torch.no_grad():
+        for inputs, targets in dataloader:
+            inputs, targets = inputs.to(torch.float32), targets.to(torch.float32)
+            outputs = model(inputs)
+            
+            r2_metric.update(outputs, targets)
+    
+    r2 = r2_metric.compute()
+    return r2.item() if isinstance(r2, torch.Tensor) else r2
+
+
+
+
+
+training_dataset = Dataprep(1,3)
+dataloader = DataLoader(training_dataset, batch_size=32, shuffle=True)
+testing_dataset = Dataprep(3,4)
+test_loader = DataLoader(testing_dataset, batch_size=32, shuffle=True)
 model=MLModel(input_channels=1)
 training_loop()
-with torch.no_grad():
-    for inputs, targets in dataloader:
-        inputs = inputs.to(torch.float32)
-        targets = targets.to(torch.float32)
-        outputs = model(inputs)
-
-        print("Predictions:", outputs[:5].numpy())  # First 5 predictions
-        print("Actual Labels:", targets[:5].numpy())  # First 5 actual labels
-        break
+r2 = test_model(model, test_loader)
+print("R^2 Score:", r2)
 

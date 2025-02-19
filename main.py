@@ -27,20 +27,19 @@ def collect_data():
             # Extract EMG channels
             emg_channels = BoardShim.get_emg_channels(BoardIds.CYTON_BOARD.value)
             emg_data = raw_data[emg_channels, :]
-            print(f"Begin next motion. Shape of emg_data: {emg_data.shape}")
-            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant3-17\\test1\\emg_datasets" + str(i) + ".npy", emg_data)
+            print(f"Shape of emg_data: {emg_data.shape}")
+            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant3-17\\test3\\emg_datasets" + str(i) + ".npy", emg_data)
             
             for channel in emg_channels:
                 DataFilter.perform_bandpass(raw_data[channel], sampling_rate, 20.0, 450.0, 4, FilterTypes.BUTTERWORTH.value, 0)
-        
-                # Notch (Bandstop) Filter for Powerline Noise (50 Hz or 60 Hz)
-                # DataFilter.perform_bandstop(raw_data[channel], sampling_rate, 50.0, 2, FilterTypes.BUTTERWORTH.value, 0)
         
                 # High-pass Filter (20 Hz) to Remove Low-Frequency Drift
                 DataFilter.perform_highpass(raw_data[channel], sampling_rate, 20.0, 4, FilterTypes.BUTTERWORTH.value, 0)
             
             # Store processed data
-            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant3-17\\test1\\emg_datasets_filter" + str(i) + ".npy", emg_data)
+            np.save("C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\Participant3-17\\test3\\emg_datasets_filter" + str(i) + ".npy", emg_data)
+            time.sleep(10)
+            print("Begin next motion.")
             time.sleep(7)
 
         print("Data collection complete.")
