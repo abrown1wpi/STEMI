@@ -7,7 +7,7 @@ class Dataprep(Dataset):
         self.tempData=[]
         self.tempLabels=[]
         samples_per_window = int(sampling_rate*window_size)
-        participant_value = "Participant3-17"
+        participant_value = "Participant4-16"
         for a in range(numstart,numend):
             for i in range(0, num_classes):
                 curData = np.load(f"C:\\Users\\AndrewWPI\\Desktop\\STEMI\\Data\\{participant_value}\\test{a}\\emg_datasets{i}.npy")
@@ -137,7 +137,7 @@ def training_loop():
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Training loop
-    num_epochs = 10
+    num_epochs = 100
     for epoch in range(num_epochs):
         running_loss = 0.0
         for inputs, targets in dataloader:
@@ -175,7 +175,7 @@ def test_model(model, dataloader):
 
 training_dataset = Dataprep(1,3)
 dataloader = DataLoader(training_dataset, batch_size=32, shuffle=True)
-testing_dataset = Dataprep(3,4)
+testing_dataset = Dataprep(2,3)
 test_loader = DataLoader(testing_dataset, batch_size=32, shuffle=True)
 model=MLModel(input_channels=1)
 training_loop()
